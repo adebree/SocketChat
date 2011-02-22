@@ -329,7 +329,7 @@ server.addListener( "error", function()
     console.log( Array.prototype.join.call( arguments, ", " ) );
 });
 
-server.listen( 8080 );
+server.listen( process.env.C9_PORT );
 
 
 
