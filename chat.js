@@ -1,7 +1,5 @@
 ;(function() {
-
-//    var server = "deedee.bukkie.nl:8080";
-    var server = "localhost:8080";
+    var server = "...";
 
     var myHistory           = document.querySelector( ".chatPane .history" )
       , myInputForm         = document.querySelector( ".inputPane form.command" )
