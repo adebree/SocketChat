@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Socket chat</title>
+
+        <meta http-equiv="author" content="Marviq" />
+        <meta http-equiv="description" content="Marviq Websockets html5" />
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta http-equiv="content-style type"content="text/css" />
+
+        <style type="text/css">
+            body {
+                background:         url('binary.jpg');
+                color:              #efefef;
+                font-family:        Courier New, Courier, monospaced;
+                font-size:          16px;
+                padding:            50px;
+            }
+            
+            .content {
+                width:              900px;
+            }
+
+            .chatPane, .userPane, .inputPane, .crackPane {
+                background-color:   rgba( 0, 0, 0, 0.6 );
+                border:             5px ridge #cfcfcf;
+                border-radius:      12px;
+                float:              left;
+                width:              600px;
+            }
+            
+            .crackPane {
+/*                width:              884px;*/
+                 display:            none; 
+            }
+            
+            .userPane {
+                height:             416px;
+            }
+            
+            .userPane .users {
+                height:             357px;
+                overflow:           auto;
+            }
+
+            .chatPane .history {
+                padding:            12px;
+                height:             370px;
+                overflow:           auto;
+            }
+
+            /* Status indicators */
+            .chatPane .status {
+                background: -webkit-gradient(
+                    linear,
+                    left bottom,
+                    left top,
+                    color-stop(0.41, rgb(138,138,138)),
+                    color-stop(0.71, rgb(173,173,173)),
+                    color-stop(0.86, rgb(204,204,204))
+                );
+                border-radius:      8px 8px 0 0;
+                color:              #efefef;
+                font-weight:        bold;
+                font-size:          12px;
+                overflow:           auto;
+                padding:            4px 12px;
+            }
+
+            .chatPane .status div {
+                float:              left;
+                margin-right:       32px;
+            }
+
+            .indicator {
+                background:         #efefef;
+                border:             1px solid #efefef;
+                border-radius:      4px;
+                display:            inline-block;
+                height:             5px;
+                width:              12px;
+            }
+
+            .indicator.green {
+                background:         lightgreen;
+                border-color:       darkseagreen;
+            }
+            
+            .indicator.orange {
+                background:         orange;
+                border-color:       darkorange;
+            }            
+
+            .indicator.blue {
+                background:         deepskyblue;
+                border-color:       cornflowerblue;
+            }
+
+            .indicator.red {
+                background:         red;
+                border-color:       darkred;
+            }
+
+            /* Chat line styles */
+            .chatLine {
+                display:            block;
+                opacity:            1;
+            }
+
+            .chatLine.me {
+                color:              fuchsia;
+                font-weight:        bold;
+            }
+
+            .chatLine.system {
+                color:              gold;
+                font-weight:        bold;
+            }
+            
+            .chatLine.error {
+                color:              red;
+                font-weight:        bold;
+            }
+            
+            .chatLine.hashfound {
+                color:              lightgreen;
+                font-weight:        bold;
+            }
+            
+            
+
+            /* The user pane */
+            .userPane {
+                float:              left;
+                margin-left:        20px;
+                width:              250px
+            }
+            
+            .userPane > div {
+                padding:            12px;
+                display:            none;
+            }
+
+            .userPane > ul {
+                font-size:          16px;
+                font-weight:        bold;
+                list-style:         square inside url('user_green.png');
+                margin:             0;
+                padding:            12px;
+                height:             100%;
+                overflow:           auto;
+            }
+
+            .userPane div.system {
+                color:              gold;
+                font-weight:        bold;
+                list-style:         none;
+                padding-bottom:     5px;
+            }
+            
+            /* The command/text input pane */
+            .inputPane {
+                clear:              both;
+                min-height:         0;
+                height:             24px;
+                margin-top:         10px;
+                padding:            0 2px 4px;
+                width:              876px;
+            }
+            
+            .inputPane h3 {
+                display:            inline;
+                margin:             auto 10px;
+            }
+                        
+            .inputPane form.command {
+                display:            none;
+            }
+                        
+            .inputPane form.login label {
+                float:              right;
+                margin:             4px 10px;                
+            }
+                        
+            .inputPane input.command, .inputPane input.username {
+                background-color:   rgba( 255, 255, 255, 0.6 );
+                color:              black;
+                font-family:        Courier New, Courier, monospaced;                
+                font-size:          16px;
+                font-weight:        bold;
+                border-radius:      5px;
+            }
+            
+            .inputPane input.command {
+                width:              640px;
+            }
+                            
+            .inputPane input.username {                            
+                width:              150px;            
+                float:              right;
+                margin-right:       10px;
+            }
+
+            .inputPane .submit, .inputPane .button {
+                background: -webkit-gradient(
+                    linear,
+                    left bottom,
+                    left top,
+                    color-stop(0.41, rgb(138,138,138)),
+                    color-stop(0.71, rgb(173,173,173)),
+                    color-stop(0.86, rgb(204,204,204))
+                );
+                border-radius:      5px;
+                border:             1px solid #666;
+                float:              right;
+                font-weight:        bold;
+                width:              100px;
+                height:             27px;
+                margin-left:        8px;
+            }
+            
+            /* crackPane */
+            .crackPane {
+                clear:              both;
+                margin-top:         10px;
+                padding:            0;
+                width:              880px;
+                overflow:           hidden;
+            }
+            
+            .crackPane .status {
+                background: -webkit-gradient(
+                    linear,
+                    left bottom,
+                    left top,
+                    color-stop(0.41, rgb(138,138,138)),
+                    color-stop(0.71, rgb(173,173,173)),
+                    color-stop(0.86, rgb(204,204,204))
+                );
+                border-radius:      8px 8px 0 0;
+                color:              #efefef;
+                font-weight:        bold;
+                font-size:          12px;
+                overflow:           auto;
+                padding:            4px 12px;
+            }
+            
+            .crackPane .history {
+                padding:            12px;
+                height:             100px;
+                overflow:           auto;         
+                font-size:          12px;   
+            }
+            
+            /* Crack line styles */
+            .crackLine {
+                display:            block;
+                opacity:            1;
+            }
+
+            .crackLine.system {
+                color:              gold;
+                font-weight:        bold;
+            }
+            
+            .crackLine.error {
+                color:              red;
+                font-weight:        bold;
+            }
+
+            .crackLine.mywork {
+                color:              fuchsia;
+            }
+
+            .crackLine.work {
+                color:              darkorange;
+            }
+            
+            .crackLine.slot {
+                color:              darkgrey;
+            }
+
+            .crackLine.verify {
+                color:              lightgreen;
+                font-weight:        bold;
+            }
+
+            
+        </style>
+    </head>
+    <body>
+        <div class="content">
+            <div class="chatPane">
+                <div class="status">
+                    <div class="online">Online <span class="indicator red"></span></div> <!-- red, orange, green -->
+                    <div class="activity">Activity <span class="indicator"></span></div> <!-- Add css blue during activity -->
+                </div>
+    
+                <div class="history">
+                </div>
+            </div>
+    
+            <div class="userPane">
+                <div class="system">-- Logged in users: --</div>
+                <ul class="users">
+                </ul>
+            </div>
+    
+            <div class="inputPane">
+                
+                <form class="command">
+                    <input type="text" class="command" />
+                    <input type="button" value="Logoff" class="button logoff" />                                      
+                    <input type="submit" value="Send"   class="submit" />  
+                </form>
+                
+                <form class="login">
+                    <h3>Login required</h3>
+                
+                    <input type="submit" value="Login" class="submit" />
+                    <input type="text" class="username" />                
+                    <label>Username:</label>                
+                </form>            
+            </div>
+            
+            <div class="crackPane">
+                <div class="status">
+                    Crack history |
+                    Hashes per second:
+                    <span class="nrHashesLocal"></span>
+                    <span class="nrHashesGlobal"></span>
+                    <span class="hash"></span>
+                </div>
+                <div class="history">
+                </div>
+            </div>
+        </div>
+                
+        <script type="text/javascript" src="chat.js"></script>
+    </body>
+</html>
